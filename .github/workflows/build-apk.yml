@@ -26,14 +26,15 @@ jobs:
           echo "===== Installed platforms before cleanup ====="
           ls $ANDROID_HOME/platforms/
 
-          for p in $ANDROID_HOME/platforms/android-36*; do
+          for p in $ANDROID_HOME/platforms/*/; do
             name=$(basename "$p")
-            echo "Removing broken platform: $name"
-            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;$name" || true
-            rm -rf "$p"
+            if [ "$name" != "android-34" ]; then
+              echo "Removing platform: $name"
+              rm -rf "$p"
+            fi
           done
 
-          echo "===== Installed platforms after cleanup ====="
+          echo "===== Installed platforms after cleanup (should be ONLY android-34) ====="
           ls $ANDROID_HOME/platforms/
 
       - name: Install Qt Desktop (host tools)
