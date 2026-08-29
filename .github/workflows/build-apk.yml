@@ -26,6 +26,9 @@ jobs:
           arch: 'android_arm64_v8a'
           setup-python: 'false'
 
+      - name: Fix GitHub Runner Android SDK 36 Bug
+        run: sudo rm -rf /usr/local/lib/android/sdk/platforms/android-36*
+
       - name: Configure and Build APK
         run: |
           mkdir build && cd build
