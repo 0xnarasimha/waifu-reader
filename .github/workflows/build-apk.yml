@@ -17,10 +17,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install NDK
+      - name: Install NDK and fix SDK platform
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;26.1.10909125"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-36-ext19" || true
 
       - name: Install Qt Desktop (host tools)
         uses: jurplel/install-qt-action@v4
@@ -54,27 +56,14 @@ jobs:
                    -DQT_HOST_PATH=$QT_HOST_PATH \
                    -DCMAKE_TOOLCHAIN_FILE=$QT_ROOT_DIR/lib/cmake/Qt6/qt.toolchain.cmake
 
-          echo "===== Available targets ====="
-          cmake --build . --target help | tee targets.txt
-
-          APK_TARGET=$(grep -o '[a-zA-Z0-9_]*_make_apk' targets.txt | head -n1)
-          echo "Using APK target: $APK_TARGET"
-
-          if [ -z "$APK_TARGET" ]; then
-            echo "No *_make_apk target found — building default target instead"
-            cmake --build . --parallel $(nproc) --verbose 2>&1 | tee build.log
-          else
-            cmake --build . --target "$APK_TARGET" --parallel $(nproc) --verbose 2>&1 | tee build.log
-          fi
+          cmake --build . --target appWaifuReader_make_apk --parallel $(nproc) --verbose 2>&1 | tee build.log
 
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
-          path: |
-            build/build.log
-            build/targets.txt
+          path: build/build.log
 
       - name: Upload APK
         if: success()
