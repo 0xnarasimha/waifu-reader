@@ -1,0 +1,42 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Qt 6 with Android Kit
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.7.0'
+          target: 'android'
+          arch: 'android_arm64_v8a'
+          modules: 'qtquickcontrols2'
+
+      - name: Configure and Build APK
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DQT_ANDROID_ABIS=arm64-v8a \
+                   -DCMAKE_TOOLCHAIN_FILE=$QT_ROOT_DIR/lib/cmake/Qt6/qt.toolchain.cmake
+          cmake --build . --target appWaifuReader_make_apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: waifu-reader-apk
+          path: build/android-build/build/outputs/apk/debug/*.apk

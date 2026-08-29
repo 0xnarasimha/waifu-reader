@@ -1,0 +1,5 @@
+build/
+*.user
+*.apk
+*.zip
+.DS_Store
