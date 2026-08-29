@@ -22,7 +22,19 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;26.1.10909125"
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-36-ext19" || true
+
+          echo "===== Installed platforms before cleanup ====="
+          ls $ANDROID_HOME/platforms/
+
+          for p in $ANDROID_HOME/platforms/android-36*; do
+            name=$(basename "$p")
+            echo "Removing broken platform: $name"
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;$name" || true
+            rm -rf "$p"
+          done
+
+          echo "===== Installed platforms after cleanup ====="
+          ls $ANDROID_HOME/platforms/
 
       - name: Install Qt Desktop (host tools)
         uses: jurplel/install-qt-action@v4
