@@ -13,21 +13,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Set up Python for Qt
+        uses: actions/setup-python@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          python-version: '3.11'
 
       - name: Install Qt 6 with Android Kit
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: '6.7.0'
           target: 'android'
           arch: 'android_arm64_v8a'
-          modules: 'qtquickcontrols2'
+          setup-python: 'false'
 
-      - name: Configure and Build APK
+     - name: Configure and Build APK
         run: |
           mkdir build && cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release \
